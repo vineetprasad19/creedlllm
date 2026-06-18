@@ -36,13 +36,24 @@ function renderAudioNumbers(pcm) {
   }
   ctx.stroke();
 
+  // The start of a recording is usually silence (all ~0), so show samples from
+  // the loudest moment where the actual numbers are interesting.
+  let peak = 0, peakIdx = 0;
+  for (let i = 0; i < pcm.length; i++) {
+    const a = Math.abs(pcm[i]);
+    if (a > peak) { peak = a; peakIdx = i; }
+  }
+  const start = Math.max(0, Math.min(peakIdx - 8, pcm.length - 16));
+  const slice = Array.from(pcm.slice(start, start + 16));
+
   const cap = document.createElement("div");
   cap.className = "num-cap";
   cap.textContent = `Your audio = ${pcm.length.toLocaleString()} samples at 16,000 Hz ` +
-    `(${(pcm.length / 16000).toFixed(1)} s). Each sample is a number from −1 to 1 — here are the first 16:`;
+    `(${(pcm.length / 16000).toFixed(1)} s). Each sample is a number from −1 to 1 — here are 16 ` +
+    `from the loudest moment (around sample ${start.toLocaleString()}):`;
   const samp = document.createElement("div");
   samp.className = "num-samples";
-  samp.textContent = "[" + Array.from(pcm.slice(0, 16)).map((v) => v.toFixed(3)).join(", ") + ", …]";
+  samp.textContent = "[… " + slice.map((v) => v.toFixed(4)).join(", ") + " …]";
   spEls.numbers.replaceChildren(cap, samp);
 }
 
