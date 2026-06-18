@@ -1,10 +1,11 @@
-# Token Counter
+# CreedLLLM
 
-A tiny website that counts **OpenAI tokens** and **characters** in any text —
-like the [OpenAI tokenizer](https://platform.openai.com/tokenizer), but it runs
-**real Python in your browser**.
+An in-browser AI playground that counts **OpenAI tokens** and **characters** —
+like the [OpenAI tokenizer](https://platform.openai.com/tokenizer) — plus live
+demos of embeddings, generation, vision, speech, and more, all running
+**100% in your browser**.
 
-https://vineetprasad19.github.io/vamp-tokenizer/
+https://vineetprasad19.github.io/creedlllm/
 
 It uses OpenAI's actual [`tiktoken`](https://github.com/openai/tiktoken) library
 compiled to WebAssembly via [Pyodide](https://pyodide.org). There is **no
