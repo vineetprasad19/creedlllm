@@ -164,6 +164,71 @@
       <div id="predictResult" class="predict-result"></div>
     </section>
 
+    <section class="rag">
+      <h2 class="view-title">Semantic search (mini-RAG)</h2>
+      <details class="explain">
+        <summary>How does "chat with your documents" work?</summary>
+        <p>Each sentence and your question are turned into vectors, then ranked by
+        meaning — the closest sentences are the "answer". A chatbot then reads those
+        retrieved sentences to reply. This retrieve-then-answer pattern is
+        <strong>retrieval-augmented generation (RAG)</strong>, how AI "chats with
+        your files".</p>
+      </details>
+      <textarea id="ragDocs" class="text-in" rows="5" spellcheck="false">Plants use sunlight, water and carbon dioxide to make food through photosynthesis.
+The Eiffel Tower is a landmark located in Paris, France.
+Dogs are loyal animals that are often kept as pets.
+The Sun is a star at the center of our solar system.
+Water boils at 100 degrees Celsius at sea level.</textarea>
+      <input id="ragQuery" class="text-in" type="text" value="How do plants make their food?" />
+      <button id="ragBtn" class="btn" type="button">Search by meaning</button>
+      <div id="ragStatus" class="cluster-status hidden"></div>
+      <div id="ragResult" class="metric-list"></div>
+    </section>
+
+    <section class="classify">
+      <h2 class="view-title">Sentiment classifier</h2>
+      <details class="explain">
+        <summary>Can AI judge tone?</summary>
+        <p>Besides generating text, models can <strong>classify</strong> it: read
+        a sentence and output a label with a confidence score. Here a real model
+        (DistilBERT) decides whether text sounds positive or negative.</p>
+      </details>
+      <input id="clsInput" class="text-in" type="text" value="I absolutely love how easy this is!" />
+      <button id="clsBtn" class="btn" type="button">Classify sentiment</button>
+      <div id="clsStatus" class="cluster-status hidden"></div>
+      <div id="clsResult" class="metric-list"></div>
+    </section>
+
+    <section class="vision">
+      <h2 class="view-title">Image recognition (vision)</h2>
+      <details class="explain">
+        <summary>How does AI "see"?</summary>
+        <p>An image is just a grid of numbers (pixels). A vision model turns those
+        numbers into features and predicts labels — the same "turn input into
+        numbers, then predict" idea as language models, applied to pictures.</p>
+      </details>
+      <label class="file-drop" id="visDrop">
+        <input type="file" id="visFile" accept="image/*" hidden />
+        <span>📷 Click or drop an image here</span>
+      </label>
+      <img id="visImg" class="vis-img" alt="" hidden />
+      <div id="visStatus" class="cluster-status hidden"></div>
+      <div id="visResult" class="metric-list"></div>
+    </section>
+
+    <section class="speech">
+      <h2 class="view-title">Speech-to-text (Whisper)</h2>
+      <details class="explain">
+        <summary>How does AI "hear"?</summary>
+        <p>Sound is turned into a stream of numbers, and a model (OpenAI's Whisper)
+        converts those into text tokens — the same tokens you saw at the top. Click
+        record, speak a sentence, and watch it transcribe.</p>
+      </details>
+      <button id="micBtn" class="btn" type="button">🎤 Start recording</button>
+      <div id="micStatus" class="cluster-status hidden"></div>
+      <div id="micResult" class="mic-result"></div>
+    </section>
+
     <div id="status" class="status">Loading Python &amp; the tokenizer…</div>
 
     <footer>
@@ -183,5 +248,9 @@
   <script src="cluster.js"></script>
   <script src="compare.js"></script>
   <script src="predict.js"></script>
+  <script src="rag.js"></script>
+  <script src="classify.js"></script>
+  <script src="vision.js"></script>
+  <script src="speech.js"></script>
 </body>
 </html>

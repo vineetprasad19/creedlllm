@@ -350,6 +350,45 @@ code {
 .cmp-fill { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), #56d4dd); transition: width 0.15s ease; }
 .cmp-num { min-width: 130px; text-align: right; font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
+/* --- Shared metric rows (RAG, sentiment, vision) --- */
+.metric-list { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
+.metric-list:empty { display: none; }
+.metric-row { display: flex; align-items: center; gap: 10px; }
+.metric-name {
+  min-width: 120px; font-size: 0.85rem; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.metric-name-wide { flex: 1.2; min-width: 0; }
+.metric-bar {
+  flex: 1; height: 14px; border-radius: 7px;
+  background: var(--card); border: 1px solid var(--border); overflow: hidden;
+}
+.metric-fill { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), #56d4dd); transition: width 0.15s ease; }
+.metric-num { min-width: 48px; text-align: right; font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.metric-row.top .metric-name { color: var(--accent-ink); font-weight: 700; }
+.metric-row.top .metric-bar { box-shadow: 0 0 0 1px var(--accent); }
+
+#ragDocs { margin-bottom: 8px; resize: vertical; }
+#ragQuery, #clsInput { margin-bottom: 8px; }
+
+/* --- Vision --- */
+.file-drop {
+  display: flex; align-items: center; justify-content: center;
+  border: 1px dashed var(--border); border-radius: 10px; padding: 20px;
+  color: var(--muted); cursor: pointer; background: var(--card);
+}
+.file-drop:hover, .file-drop.drag { border-color: var(--accent); color: var(--accent-ink); }
+.vis-img { max-width: 100%; max-height: 240px; border-radius: 10px; margin: 10px 0; display: block; }
+
+/* --- Speech --- */
+.btn.recording { background: #f85149; }
+.mic-result:empty { display: none; }
+.mic-result {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px;
+  background: var(--card); border: 1px solid var(--border); color: var(--ink);
+  font-size: 0.95rem; line-height: 1.5;
+}
+
 footer {
   margin-top: 18px;
   color: var(--muted);

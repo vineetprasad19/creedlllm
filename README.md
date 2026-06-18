@@ -35,9 +35,16 @@ Pages (static hosting).
   **temperature** slider reshapes the distribution (low = safe, high = creative)
   and a **Sample** button draws a token from it — the core idea of how LLMs write
   text, plus how sampling/creativity works.
+- **Semantic search (mini-RAG)** — rank sentences by meaning against a question;
+  the retrieve step behind "chat with your documents".
+- **Sentiment classifier** — DistilBERT labels text positive/negative in-browser.
+- **Image recognition (vision)** — a Vision Transformer names what's in an
+  uploaded image (top-5 with confidence).
+- **Speech-to-text** — record your mic and transcribe it with Whisper (tiny),
+  in-browser.
 - **Concept explainer cards** — collapsible "💡 What is …?" notes throughout that
-  explain tokens, token IDs, embeddings, context windows, and generation in plain
-  language.
+  explain tokens, token IDs, embeddings, context windows, generation, RAG,
+  classification, vision, and speech in plain language.
 
 ## How it works
 
