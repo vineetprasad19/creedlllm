@@ -1,11 +1,11 @@
-# CreedLLLM
+# CreedLLM
 
 An in-browser AI playground that counts **OpenAI tokens** and **characters** —
 like the [OpenAI tokenizer](https://platform.openai.com/tokenizer) — plus live
 demos of embeddings, generation, vision, speech, and more, all running
 **100% in your browser**.
 
-https://vineetprasad19.github.io/creedlllm/
+https://vineetprasad19.github.io/creedllm/
 
 It uses OpenAI's actual [`tiktoken`](https://github.com/openai/tiktoken) library
 compiled to WebAssembly via [Pyodide](https://pyodide.org). There is **no
