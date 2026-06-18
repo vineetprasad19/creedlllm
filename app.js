@@ -102,11 +102,25 @@ async function boot() {
 
     render();
     els.input.focus();
+
+    // Expose a tokenizer API for the Tokenizer-comparison feature.
+    window.Tokenizer.ready = true;
+    if (window.Tokenizer.onReady) window.Tokenizer.onReady();
   } catch (err) {
     console.error(err);
     setStatus("Failed to load the tokenizer: " + err.message, "error");
   }
 }
+
+// Minimal API used by compare.js (and any future feature).
+window.Tokenizer = {
+  ready: false,
+  onReady: null,
+  async count(name, text) {
+    await ensureEncoding(name);
+    return JSON.parse(pyTokenize(name, text)).count;
+  },
+};
 
 // Fetch a bundled .tiktoken vocab file and hand it to Python (once per encoding).
 async function ensureEncoding(name) {

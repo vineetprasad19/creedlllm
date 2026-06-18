@@ -27,9 +27,14 @@ Pages (static hosting).
   zoom; the model (~25 MB) downloads once on first use.
 - **Context window meter** — a bar showing how much of a model's context window
   (8K / 16K / 128K / 200K) your current text would fill.
+- **Tokenizer comparison** — the same text tokenized by GPT-4o / GPT-4 / Codex /
+  GPT-3 side by side, with multilingual & emoji example presets, showing why
+  non-English text costs more tokens.
 - **Next-token predictor** — runs `distilGPT-2` in the browser to show the top
-  predicted **next tokens** with probability bars; click one to generate. This is
-  the core idea of how LLMs write text.
+  predicted **next tokens** with probability bars; click one to generate. A
+  **temperature** slider reshapes the distribution (low = safe, high = creative)
+  and a **Sample** button draws a token from it — the core idea of how LLMs write
+  text, plus how sampling/creativity works.
 - **Concept explainer cards** — collapsible "💡 What is …?" notes throughout that
   explain tokens, token IDs, embeddings, context windows, and generation in plain
   language.

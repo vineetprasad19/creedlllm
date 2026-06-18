@@ -1,6 +1,7 @@
 // Next-token predictor — runs distilGPT-2 in the browser and shows the top
-// predicted next tokens with probability bars. Click a prediction to append it
-// and predict again. This is the core idea of how LLMs generate text.
+// predicted next tokens with probability bars. A temperature slider reshapes the
+// distribution (low = sharp/safe, high = flat/creative); "Sample" draws a token
+// from that distribution and appends it. Clicking a bar appends that token.
 
 const PREDICT_URL = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.3";
 const PREDICT_MODEL = "Xenova/distilgpt2";
@@ -9,6 +10,9 @@ const TOP_K = 10;
 const pEls = {
   input: document.getElementById("predictInput"),
   btn: document.getElementById("predictBtn"),
+  sampleBtn: document.getElementById("sampleBtn"),
+  temp: document.getElementById("temp"),
+  tempVal: document.getElementById("tempVal"),
   status: document.getElementById("predictStatus"),
   result: document.getElementById("predictResult"),
 };
@@ -17,10 +21,15 @@ let _tok = null;
 let _model = null;
 let _loading = null;
 let pBusy = false;
+let _lastLogits = null; // raw logits for the last position, cached for the slider
 
 function pStatus(msg, kind) {
   pEls.status.textContent = msg;
   pEls.status.className = "cluster-status" + (kind ? " " + kind : "");
+}
+
+function temperature() {
+  return Math.max(0.1, parseFloat(pEls.temp.value) || 1);
 }
 
 async function loadModel() {
@@ -42,49 +51,84 @@ async function loadModel() {
   return _loading;
 }
 
-// Softmax over all logits, return the top-k {index, prob}.
-function softmaxTopK(logits, k) {
+// Temperature-scaled softmax probabilities (Float64Array) over all logits.
+function softmaxT(logits, temp) {
   let max = -Infinity;
-  for (let i = 0; i < logits.length; i++) if (logits[i] > max) max = logits[i];
-  const exps = new Float64Array(logits.length);
+  for (let i = 0; i < logits.length; i++) { const v = logits[i] / temp; if (v > max) max = v; }
+  const probs = new Float64Array(logits.length);
   let sum = 0;
-  for (let i = 0; i < logits.length; i++) { const e = Math.exp(logits[i] - max); exps[i] = e; sum += e; }
-  const idx = Array.from({ length: logits.length }, (_, i) => i);
-  idx.sort((a, b) => exps[b] - exps[a]);
-  const out = [];
-  for (let i = 0; i < Math.min(k, idx.length); i++) {
-    const j = idx[i];
-    out.push({ index: j, prob: exps[j] / sum });
-  }
-  return out;
+  for (let i = 0; i < logits.length; i++) { const e = Math.exp(logits[i] / temp - max); probs[i] = e; sum += e; }
+  for (let i = 0; i < probs.length; i++) probs[i] /= sum;
+  return probs;
+}
+
+function topK(probs, k) {
+  const idx = Array.from({ length: probs.length }, (_, i) => i);
+  idx.sort((a, b) => probs[b] - probs[a]);
+  return idx.slice(0, Math.min(k, idx.length)).map((j) => ({ index: j, prob: probs[j] }));
+}
+
+function sampleIndex(probs) {
+  let r = Math.random(), acc = 0;
+  for (let i = 0; i < probs.length; i++) { acc += probs[i]; if (acc >= r) return i; }
+  return probs.length - 1;
+}
+
+// Run the model on the current text and cache the last-position logits.
+async function computeLogits() {
+  await loadModel();
+  pStatus("Predicting…", "busy");
+  const inputs = await _tok(pEls.input.value);
+  const output = await _model(inputs);
+  const logitsT = output.logits;            // dims [1, seq, vocab]
+  const dims = logitsT.dims;
+  const vocab = dims[dims.length - 1];
+  const seq = dims[dims.length - 2];
+  const offset = (seq - 1) * vocab;
+  _lastLogits = Float64Array.from(logitsT.data.subarray(offset, offset + vocab));
+  pStatus("", "hidden");
+}
+
+function renderFromCache() {
+  if (!_lastLogits) return;
+  const probs = softmaxT(_lastLogits, temperature());
+  renderPredictions(topK(probs, TOP_K));
 }
 
 async function predict() {
-  const text = pEls.input.value;
-  if (!text) { pStatus("Type some text first.", "error"); return; }
+  if (!pEls.input.value) { pStatus("Type some text first.", "error"); return; }
   if (pBusy) return;
-  pBusy = true;
-  pEls.btn.disabled = true;
+  pBusy = true; pEls.btn.disabled = true; pEls.sampleBtn.disabled = true;
   try {
     pStatus("Loading model…", "busy");
-    await loadModel();
-    pStatus("Predicting…", "busy");
-    const inputs = await _tok(text);
-    const output = await _model(inputs);
-    const logitsT = output.logits;          // dims [1, seq, vocab]
-    const dims = logitsT.dims;
-    const vocab = dims[dims.length - 1];
-    const seq = dims[dims.length - 2];
-    const offset = (seq - 1) * vocab;        // logits for the LAST position
-    const last = logitsT.data.subarray(offset, offset + vocab);
-    renderPredictions(softmaxTopK(last, TOP_K));
-    pStatus("", "hidden");
+    await computeLogits();
+    renderFromCache();
   } catch (err) {
     console.error(err);
     pStatus("Error: " + err.message, "error");
   } finally {
-    pBusy = false;
-    pEls.btn.disabled = false;
+    pBusy = false; pEls.btn.disabled = false; pEls.sampleBtn.disabled = false;
+  }
+}
+
+async function sampleNext() {
+  if (!pEls.input.value) { pStatus("Type some text first.", "error"); return; }
+  if (pBusy) return;
+  pBusy = true; pEls.btn.disabled = true; pEls.sampleBtn.disabled = true;
+  try {
+    pStatus("Loading model…", "busy");
+    await computeLogits();
+    const probs = softmaxT(_lastLogits, temperature());
+    const idx = sampleIndex(probs);
+    pEls.input.value += _tok.decode([idx]);
+    _lastLogits = null; // text changed; recompute on next action
+    await computeLogits();
+    renderFromCache();
+  } catch (err) {
+    console.error(err);
+    pStatus("Error: " + err.message, "error");
+  } finally {
+    pBusy = false; pEls.btn.disabled = false; pEls.sampleBtn.disabled = false;
   }
 }
 
@@ -99,8 +143,7 @@ function renderPredictions(top) {
 
     const label = document.createElement("span");
     label.className = "pred-tok";
-    // Reveal leading spaces/newlines by quoting the raw token text.
-    label.textContent = JSON.stringify(tokenText).slice(1, -1);
+    label.textContent = JSON.stringify(tokenText).slice(1, -1); // reveal whitespace
 
     const bar = document.createElement("span");
     bar.className = "pred-bar";
@@ -114,9 +157,20 @@ function renderPredictions(top) {
     pct.textContent = (t.prob * 100).toFixed(1) + "%";
 
     row.append(label, bar, pct);
-    row.addEventListener("click", () => { pEls.input.value += tokenText; predict(); });
+    row.addEventListener("click", async () => {
+      pEls.input.value += tokenText;
+      _lastLogits = null;
+      await predict();
+    });
     pEls.result.appendChild(row);
   }
 }
 
 pEls.btn.addEventListener("click", predict);
+pEls.sampleBtn.addEventListener("click", sampleNext);
+pEls.temp.addEventListener("input", () => {
+  pEls.tempVal.textContent = parseFloat(pEls.temp.value).toFixed(1);
+  renderFromCache(); // instant: just re-softmax the cached logits
+});
+// Re-running prediction is needed if the text is edited by hand.
+pEls.input.addEventListener("input", () => { _lastLogits = null; });

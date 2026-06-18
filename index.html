@@ -84,6 +84,27 @@
       <div id="ctxLabel" class="ctx-label">—</div>
     </section>
 
+    <section class="compare">
+      <h2 class="view-title">Tokenizer comparison</h2>
+      <details class="explain">
+        <summary>Why do token counts differ?</summary>
+        <p>Different model families use different tokenizers. Newer ones (GPT-4o)
+        pack text into <strong>fewer</strong> tokens than older ones (GPT-3). And
+        because tokenizers learned mostly from English, the same sentence in other
+        languages — or emoji — often costs <strong>many more</strong> tokens. Try
+        the examples below and watch the bars change.</p>
+      </details>
+      <div class="example-chips">
+        <button type="button" data-ex="The quick brown fox jumps over the lazy dog.">English</button>
+        <button type="button" data-ex="function add(a, b) { return a + b; } // sums two numbers">Code</button>
+        <button type="button" data-ex="I love pizza 🍕🎉😀🚀❤️🌮🔥">Emoji</button>
+        <button type="button" data-ex="नमस्ते दुनिया, यह एक छोटा सा परीक्षण है।">Hindi</button>
+        <button type="button" data-ex="El rápido zorro marrón salta sobre el perro perezoso.">Spanish</button>
+      </div>
+      <textarea id="compareInput" class="text-in" rows="2" spellcheck="false" placeholder="Type text to compare across tokenizers…"></textarea>
+      <div id="compareResult" class="compare-result"></div>
+    </section>
+
     <section class="cluster">
       <h2 class="view-title">Vector Graph</h2>
       <details class="explain">
@@ -129,7 +150,16 @@
         Click a prediction to add it and see what the model would say next.</p>
       </details>
       <textarea id="predictInput" class="text-in" spellcheck="false" rows="2">The capital of France is</textarea>
-      <button id="predictBtn" class="btn" type="button">Predict next token</button>
+      <div class="predict-controls">
+        <label for="temp">Temperature <span id="tempVal">1.0</span>
+          <input type="range" id="temp" min="0.1" max="2" step="0.1" value="1" />
+        </label>
+        <span class="temp-hint">low = safe &amp; repetitive · high = creative &amp; random</span>
+      </div>
+      <div class="predict-buttons">
+        <button id="predictBtn" class="btn" type="button">Predict next token</button>
+        <button id="sampleBtn" class="btn btn-alt" type="button">🎲 Sample next</button>
+      </div>
       <div id="predictStatus" class="cluster-status hidden"></div>
       <div id="predictResult" class="predict-result"></div>
     </section>
@@ -151,6 +181,7 @@
   <script src="app.js"></script>
   <script src="embeddings.js"></script>
   <script src="cluster.js"></script>
+  <script src="compare.js"></script>
   <script src="predict.js"></script>
 </body>
 </html>
