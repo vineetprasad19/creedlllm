@@ -36,6 +36,40 @@
 .nav-links a:hover { color: var(--ink); background: var(--card); }
 .nav-links a.active { color: #fff; background: var(--accent); }
 
+/* --- Section tab bar (jump-to-demo) --- */
+.sectionnav {
+  position: sticky;
+  top: 43px; /* sits just under the main top nav */
+  z-index: 45;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 8px 12px;
+  margin: 0 -18px 14px; /* bleed to the edges of .wrap */
+  background: rgba(13, 17, 23, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border);
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+.sectionnav a {
+  flex: 0 0 auto;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  white-space: nowrap;
+}
+.sectionnav a:hover { color: var(--ink); border-color: var(--accent); }
+.sectionnav a.active { color: #06281e; background: var(--accent); border-color: var(--accent); }
+
+/* keep anchored section headings clear of both sticky bars */
+.wrap > section { scroll-margin-top: 92px; }
+
 body {
   margin: 0;
   color-scheme: dark;
@@ -528,20 +562,6 @@ code {
 .cost-table tr.cost-claude td:first-child { color: var(--accent-ink); font-weight: 700; }
 .cost-mult { color: var(--muted); font-size: 0.75rem; margin-left: 6px; }
 .cost-approx { color: #f0883e; font-weight: 700; cursor: help; }
-
-/* --- Draw a digit --- */
-.digit-stage { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-top: 12px; }
-.digit-pad {
-  width: 200px; height: 200px; background: #000;
-  border: 1px solid var(--border); border-radius: 10px;
-  cursor: crosshair; touch-action: none;
-}
-.digit-result { flex: 1; min-width: 180px; display: flex; align-items: center; gap: 16px; }
-.digit-result .metric-list { flex: 1; }
-.digit-big {
-  font-size: 4rem; font-weight: 800; line-height: 1;
-  color: var(--accent-ink); min-width: 60px; text-align: center;
-}
 
 /* --- Text-to-speech --- */
 #ttsVoice {
